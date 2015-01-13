@@ -35,10 +35,12 @@
         $('#messages').append($('<li>').text(username + ": " + msg));
       });
 
-      socket.on('user connected', function(username) {
-        var username = prompt("What is your name?");
-
+      socket.on('announce new user', function(username) {
         $('#messages').append($('<li>').text(username + " joined"));
+      })
+
+      socket.on('prompt username', function(username) {
+        var username = prompt("What is your name?");
         socket.emit('add username', username);
       })
 

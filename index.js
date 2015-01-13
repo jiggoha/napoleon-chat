@@ -19,15 +19,15 @@ app.route('/login')
 .get(function(req, res) {
 	res.render('login');
 })
-.post(function(req, res) {
-	var name = req.body.name;
-	// usernames[] = name;
-	res.redirect('/');
-})
+// .post(function(req, res) {
+// 	var name = req.body.name;
+// 	usernames[] = name;
+// 	res.redirect('/');
+// })
 
 io.on('connection', function(socket) {
 	console.log('a user connected');
-	io.emit('user connected');
+	socket.emit('prompt username');
 
 	socket.on('chat message', function(msg) {
 		console.log(socket.username + ': ' + msg)
@@ -37,6 +37,7 @@ io.on('connection', function(socket) {
 	socket.on('add username', function(username) {
 		socket.username = username;
 		console.log("new username: " + socket.username);
+		io.emit('announce new user', socket.username);
 	})
 
 	socket.on('disconnect', function() {
