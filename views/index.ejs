@@ -31,28 +31,41 @@
         return false;
       });
 
+
       socket.on('add previous messages', function(messages) {
         for (i = 0; i < messages.length; i++) {
-          $('#messages').append($('<li>').text(messages[i]));
+          display_message(messages[i]);
         }
-      })
+      });
 
       socket.on('prompt username', function(username) {
         var username = prompt("What is your name?");
         socket.emit('add username', username);
-      })
+      });
 
       socket.on('announce new user', function(username) {
-        $('#messages').append($('<li>').text(username + " joined"));
-      })
+        display_message(username + " joined");
+      });
       
       socket.on('chat message', function(username, msg) {
-        $('#messages').append($('<li>').text(username + ": " + msg));
+        display_message(username + ": " + msg);
       });
 
       socket.on('user disconnected', function(username) {
-        $('#messages').append($('<li>').text(username + " left"));
-      })
+        display_message(username + " left");
+      });
+
+
+      function display_message(text) {
+        var last_message = $('#messages li:last').text()
+
+        if (last_message.split(" ")[0] == text.split(" ")[0]) {
+          $('#messages li:last').append($('<br>'));
+          $('#messages li:last').append(text);
+        } else {
+          $('#messages').append($('<li>').text(text));
+        }
+      }
     </script>
   </body>
 

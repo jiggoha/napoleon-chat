@@ -15,11 +15,11 @@ app.use(bodyParser.urlencoded({
 app.get('/', function(req, res) {
 	res.render('index');
 });
-
-app.route('/login')
-.get(function(req, res) {
-	res.render('login');
-})
+// not needed anymore because of prompt window
+// app.route('/login')
+// .get(function(req, res) {
+// 	res.render('login');
+// })
 // .post(function(req, res) {
 // 	var name = req.body.name;
 // 	usernames[] = name;
