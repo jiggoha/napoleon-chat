@@ -31,12 +31,10 @@
         return false;
       });
 
-      socket.on('chat message', function(username, msg) {
-        $('#messages').append($('<li>').text(username + ": " + msg));
-      });
-
-      socket.on('announce new user', function(username) {
-        $('#messages').append($('<li>').text(username + " joined"));
+      socket.on('add previous messages', function(messages) {
+        for (i = 0; i < messages.length; i++) {
+          $('#messages').append($('<li>').text(messages[i]));
+        }
       })
 
       socket.on('prompt username', function(username) {
@@ -44,8 +42,16 @@
         socket.emit('add username', username);
       })
 
+      socket.on('announce new user', function(username) {
+        $('#messages').append($('<li>').text(username + " joined"));
+      })
+      
+      socket.on('chat message', function(username, msg) {
+        $('#messages').append($('<li>').text(username + ": " + msg));
+      });
+
       socket.on('user disconnected', function(username) {
-        $('#messages').append($('<li>').text(username + " disconnected"));
+        $('#messages').append($('<li>').text(username + " left"));
       })
     </script>
   </body>

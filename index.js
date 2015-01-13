@@ -3,7 +3,8 @@ var app = require('express')(),
 		io = require('socket.io')(http),
 		bodyParser = require('body-parser');
 
-var usernames = {};
+var recent_messages = [];
+var HISTORY_LENGTH = 10;
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.json());
@@ -27,24 +28,46 @@ app.route('/login')
 
 io.on('connection', function(socket) {
 	console.log('a user connected');
+	socket.emit('add previous messages', recent_messages);
 	socket.emit('prompt username');
-
-	socket.on('chat message', function(msg) {
-		console.log(socket.username + ': ' + msg)
-		io.emit('chat message', socket.username, msg);
-	})
 
 	socket.on('add username', function(username) {
 		socket.username = username;
+		
 		console.log("new username: " + socket.username);
+		recent_messages.push(socket.username + " joined");
+		clip(recent_messages);
+
 		io.emit('announce new user', socket.username);
+	})
+
+	socket.on('chat message', function(msg) {
+		console.log(socket.username + ': ' + msg)
+		recent_messages.push(socket.username + ": " + msg);
+		clip(recent_messages);
+
+		io.emit('chat message', socket.username, msg);
 	})
 
 	socket.on('disconnect', function() {
 		console.log(socket.username + ' disconnected');
+		recent_messages.push(socket.username + " left");
+		clip(recent_messages);
+
 		io.emit('user disconnected', socket.username);
 	})
 })
+
+
+// keeps recent_messages array to be a certain length
+function clip(array) {
+	if (array.length > HISTORY_LENGTH) {
+		var howmany_extra = array.length - HISTORY_LENGTH;
+		return array.splice(0, howmany_extra);
+	} else {
+		return array;
+	}
+}
 
 http.listen(3000, function() {
 	console.log('listening on port 3000');
