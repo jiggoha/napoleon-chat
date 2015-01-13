@@ -1,5 +1,6 @@
 # napoleon-chat
 Chat component of Napoleon game that will hopefully expand to the whole thing.
+Express and Socket.IO practice.
 
 DONE:
 * Broadcast a message to connected users when someone connects or disconnects
