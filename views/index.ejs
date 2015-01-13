@@ -31,6 +31,15 @@
         return false;
       });
 
+      socket.on('show users', function(usernames){
+        if ($('#user_list')[0]) {
+          console.log('exists');
+          $('#user_list').text("In this room: " + usernames.join(", "));
+        } else {
+          console.log('doesnt exists');
+          $('#messages').before($("<div id='user_list'>").text("In this room: " + usernames.join(", ")));
+        }
+      });
 
       socket.on('add previous messages', function(messages) {
         for (i = 0; i < messages.length; i++) {

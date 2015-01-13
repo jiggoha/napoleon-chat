@@ -5,6 +5,7 @@ var app = require('express')(),
 
 var recent_messages = [];
 var HISTORY_LENGTH = 10;
+var usernames = [];
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.json());
@@ -29,20 +30,26 @@ app.get('/', function(req, res) {
 io.on('connection', function(socket) {
 	console.log('a user connected');
 	socket.emit('add previous messages', recent_messages);
+	io.emit('show users', usernames);
 	socket.emit('prompt username');
 
 	socket.on('add username', function(username) {
+		console.log("new username: " + username);
+
 		socket.username = username;
-		
-		console.log("new username: " + socket.username);
+
 		recent_messages.push(socket.username + " joined");
 		clip(recent_messages);
 
+		usernames.push(socket.username);
+
 		io.emit('announce new user', socket.username);
+		io.emit('show users', usernames);
 	})
 
 	socket.on('chat message', function(msg) {
 		console.log(socket.username + ': ' + msg)
+
 		recent_messages.push(socket.username + ": " + msg);
 		clip(recent_messages);
 
@@ -51,10 +58,14 @@ io.on('connection', function(socket) {
 
 	socket.on('disconnect', function() {
 		console.log(socket.username + ' disconnected');
+		
 		recent_messages.push(socket.username + " left");
 		clip(recent_messages);
 
+		usernames.splice(usernames.indexOf(socket.username),1) // delete username
+
 		io.emit('user disconnected', socket.username);
+		io.emit('show users', usernames);
 	})
 })
 
