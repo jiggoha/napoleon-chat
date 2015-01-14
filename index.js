@@ -45,6 +45,10 @@ io.on('connection', function(socket) {
 
 		io.emit('announce new user', socket.username);
 		io.emit('show users', usernames);
+
+		// if (usernames.length === 4) {
+		// 	console.log('deal a hand');
+		// }
 	})
 
 	socket.on('chat message', function(msg) {
@@ -55,6 +59,14 @@ io.on('connection', function(socket) {
 
 		io.emit('chat message', socket.username, msg);
 	})
+
+	socket.on('is typing', function(username) {
+		io.emit('display typing', username);
+	})
+
+	socket.on('not typing', function(username) {
+		io.emit('remove typing', username);
+	});
 
 	socket.on('disconnect', function() {
 		console.log(socket.username + ' disconnected');

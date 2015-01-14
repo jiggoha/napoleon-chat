@@ -28,15 +28,22 @@
       $('form').submit(function() {    
         socket.emit('chat message', $('#m').val());
         $('#m').val('');
-
-        $("#is_typing").remove(); // is this executing?
+        socket.emit('not typing', socket.username);
         return false;
       });
 
       $('#m').keyup(function() {
-        if (($('#m').val() != '') && !($('#is_typing').text())) {
-          $('#messages').after($("<div id='is_typing'>").text(socket.username + " is typing..."))
+        if (($('#m').val() != '') && !($('#' + socket.username + '_is_typing').text())) {
+          socket.emit('is typing', socket.username);
         }
+      });
+
+      socket.on('display typing', function(username) {
+        $('#messages').after($("<div id='" + username + "_is_typing'>").text(username + " is typing..."))
+      });
+
+      socket.on('remove typing', function(username) {
+        $("#"+ username + "_is_typing").remove();
       });
 
       socket.on('show users', function(usernames){
