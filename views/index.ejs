@@ -28,20 +28,26 @@
       $('form').submit(function() {    
         socket.emit('chat message', $('#m').val());
         $('#m').val('');
+
+        $("#is_typing").remove(); // is this executing?
         return false;
+      });
+
+      $('#m').keyup(function() {
+        if (($('#m').val() != '') && !($('#is_typing').text())) {
+          $('#messages').after($("<div id='is_typing'>").text(socket.username + " is typing..."))
+        }
       });
 
       socket.on('show users', function(usernames){
         if ($('#user_list')[0]) {
-          console.log('exists');
           $('#user_list').text("In this room: " + usernames.join(", "));
         } else {
-          console.log('doesnt exists');
           $('#messages').before($("<div id='user_list'>").text("In this room: " + usernames.join(", ")));
         }
       });
 
-      socket.on('add previous messages', function(messages) {
+      socket.on('load previous messages', function(messages) {
         for (i = 0; i < messages.length; i++) {
           display_message(messages[i]);
         }
@@ -49,6 +55,7 @@
 
       socket.on('prompt username', function(username) {
         var username = prompt("What is your name?");
+        socket.username = username;
         socket.emit('add username', username);
       });
 

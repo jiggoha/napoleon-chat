@@ -29,7 +29,7 @@ app.get('/', function(req, res) {
 
 io.on('connection', function(socket) {
 	console.log('a user connected');
-	socket.emit('add previous messages', recent_messages);
+	socket.emit('load previous messages', recent_messages);
 	io.emit('show users', usernames);
 	socket.emit('prompt username');
 
