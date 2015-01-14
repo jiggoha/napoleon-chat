@@ -1,0 +1,18 @@
+ranks = [1,2,3,4,5,6,7,8,9,10,11,12,13]
+words = ['Ace', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Jack', 'Queen', 'King']
+
+for (i = 0; i < ranks.length; i++) {
+	db.cards.insert({value: "H" + ranks[i], name: words[i] + " of Hearts", suit: "hearts", rank: ranks[i]})
+}
+
+for (i = 0; i < ranks.length; i++) {
+	db.cards.insert({value: "C" + ranks[i], name: words[i] + " of Clubs", suit: "clubs", rank: ranks[i]})
+}
+
+for (i = 0; i < ranks.length; i++) {
+	db.cards.insert({value: "D" + ranks[i], name: words[i] + " of Diamonds", suit: "diamonds", rank: ranks[i]})
+}
+
+for (i = 0; i < ranks.length; i++) {
+	db.cards.insert({value: "S" + ranks[i], name: words[i] + " of Spades", suit: "spades", rank: ranks[i]})
+}
