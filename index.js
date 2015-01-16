@@ -3,7 +3,7 @@ var app = require('express')(),
 		io = require('socket.io')(http),
 		bodyParser = require('body-parser'),
 		MongoClient = require('mongodb').MongoClient,
-    shuffle = require('./shuffle');
+    Cards = require('./cards_controller');
 
 var recent_messages = [];
 var HISTORY_LENGTH = 10;
@@ -21,26 +21,6 @@ function clip(array) {
   }
 }
 
-// assign people (owners) to cards and set aside kitty
-function deal(db, usernames) {
-  db.collection('cards').find().batchSize(52).toArray(function(err, items) {
-    // console.log(JSON.stringify(items, undefined, 2));
-    shuffle(items);
-
-    kitty = items.splice(0, 4);
-
-    for (i = 0; i < 4; i++) {
-      for (j = 0; j < 12; j++) {
-        if (hands[usernames[i]]) {
-          hands[usernames[i]].push(items[j]);
-        } else {
-          hands[usernames[i]] = [items[j]];
-        }
-      }
-    }
-    console.log('jiggoha: ' + JSON.stringify(hands['jiggoha']));
-  })
-}
 
 MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 	'use strict';
@@ -56,16 +36,6 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 	app.get('/', function(req, res) {
 		res.render('index');
 	});
-	// not needed anymore because of prompt window
-	// app.route('/login')
-	// .get(function(req, res) {
-	// 	res.render('login');
-	// })
-	// .post(function(req, res) {
-	// 	var name = req.body.name;
-	// 	usernames[] = name;
-	// 	res.redirect('/');
-	// })
 	
 	io.on('connection', function(socket) {
 		console.log('a user connected');
@@ -89,7 +59,8 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 
 			if (usernames.length === 4) {
 				console.log('deal a hand');
-        deal(db, usernames);
+        hands = Cards.deal(db, usernames)[0];
+        kitty = Cards.deal(db, usernames)[1];
 			}
 		})
 
