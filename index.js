@@ -59,8 +59,16 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 
 			if (usernames.length === 4) {
 				console.log('deal a hand');
-        hands = Cards.deal(db, usernames)[0];
-        kitty = Cards.deal(db, usernames)[1];
+
+			  db.collection('cards').find().batchSize(52).toArray(function(err, cards) {
+			    Cards.shuffle(cards);
+
+			  	var hands = Cards.deal(cards, usernames)[0];
+        	var kitty = Cards.deal(cards, usernames)[1];
+
+        	// console.log("kitty: " + JSON.stringify(kitty, undefined, 2));
+        	// console.log("hands: " + JSON.stringify(hands, undefined, 2));
+			  })
 			}
 		})
 

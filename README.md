@@ -15,7 +15,7 @@ DONE
   * Don’t send the same message to the user that sent it himself. Instead, append the message directly as soon as he presses enter.
   * Show who’s online
   * Add “{user} is typing” functionality
-  * Function for determing the winning card of a trick (NOTE: doesn't work when called from index.js yet because of scoping issue. Will fix.)
+  * Function for determing the winning card of a trick (~~NOTE: doesn't work when called from index.js yet because of scoping issue. Will fix.~~)
   
   Napoleon:
   * Creation of a deck of cards

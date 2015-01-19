@@ -1,7 +1,7 @@
 // Fisher-Yates shuffle algorithm
 // Time complexity: O(n)
 // Space complexity: O(n)
-function shuffle(cards) {
+module.exports.shuffle = function shuffle(cards) {
 	var to_switch = cards.length - 1;
 
 	while (to_switch != 0) {
@@ -23,26 +23,19 @@ function swap(list, first, second) {
 
 
 // assign people (owners) to cards and set aside kitty
-module.exports.deal = function deal(db, usernames) {
+module.exports.deal = function deal(cards, usernames) {
 	var hands = {};
-	var kitty = [];
+  var kitty = cards.splice(0, 4);
 
-  db.collection('cards').find().batchSize(52).toArray(function(err, items) {
-    shuffle(items);
-
-    kitty = items.splice(0, 4);
-
-    for (i = 0; i < 4; i++) {
-      for (j = 0; j < 12; j++) {
-        if (hands[usernames[i]]) {
-          hands[usernames[i]].push(items[j]);
-        } else {
-          hands[usernames[i]] = [items[j]];
-        }
+  for (i = 0; i < 4; i++) {
+    for (j = 0; j < 12; j++) {
+      if (hands[usernames[i]]) {
+        hands[usernames[i]].push(cards[j]);
+      } else {
+        hands[usernames[i]] = [cards[j]];
       }
     }
-  })
-
+  }
   return [hands, kitty];
 }
 
