@@ -30,9 +30,12 @@ module.exports.deal = function deal(cards, usernames) {
   for (i = 0; i < 4; i++) {
     for (j = 0; j < 12; j++) {
       if (hands[usernames[i]]) {
-        hands[usernames[i]].push(cards[j]);
+      	// this is kind of hacky: should fix later.
+      	// +12*i is to increment index of cards to assign different 12 cards for each player
+        hands[usernames[i]].push(cards[j+12*i]);
       } else {
-        hands[usernames[i]] = [cards[j]];
+      	// this is the initialization
+        hands[usernames[i]] = [cards[j+12*i]];
       }
     }
   }

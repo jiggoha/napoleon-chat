@@ -20,6 +20,7 @@ DONE
   Napoleon:
   * Creation of a deck of cards
   * Shuffling and dealing the deck of cards
+  * After 4 players join, the deck is dealt and each player sees their hands
 
 
 TODO
@@ -28,6 +29,8 @@ TODO
   * Add private messaging
   
   Napoleon:
+  * Fix hacky dealing
+  * Allow players to play cards. Need some sort of sequencing for who moves.
   * Functions for declaring Napoleon and Secretary, for ending the game
   * Get user input for each of the above functions
   * more...

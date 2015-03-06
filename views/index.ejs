@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
     <title>Socket.IO chat</title>
@@ -15,11 +15,12 @@
   </head>
 
   <body>
+    <p id='cards_label' style="color: white; background-color: #3234A1; font-size: 24px; display: inline">Cards:</p>
     <ul id="messages"></ul>
     <form action="">
       <input id="m" autocomplete="off" /><button>Send</button>
     </form>
-  
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
@@ -78,6 +79,15 @@
         display_message(username + " left");
       });
 
+      socket.on('first deal', function() {
+        socket.emit('ask for cards', socket.username);
+      });
+
+      socket.on('receive cards', function(cards) {
+        for (var i=0; i<cards.length; i++) {
+          $('#cards_label').after($('<p>' + cards[i].value + '</p>'));
+        }
+      });
 
       function display_message(text) {
         var last_message = $('#messages li:last').text()

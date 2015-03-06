@@ -21,7 +21,6 @@ function clip(array) {
   }
 }
 
-
 MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 	'use strict';
 	if (err) throw err;
@@ -36,6 +35,8 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 	app.get('/', function(req, res) {
 		res.render('index');
 	});
+
+	// deck
 	
 	io.on('connection', function(socket) {
 		console.log('a user connected');
@@ -58,18 +59,22 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 			io.emit('show users', usernames);
 
 			if (usernames.length === 4) {
-				console.log('deal a hand');
-
 			  db.collection('cards').find().batchSize(52).toArray(function(err, cards) {
 			    Cards.shuffle(cards);
 
-			  	var hands = Cards.deal(cards, usernames)[0];
-        	var kitty = Cards.deal(cards, usernames)[1];
-
+			  	hands = Cards.deal(cards, usernames)[0];
+        	kitty = Cards.deal(cards, usernames)[1];
+        	
+        	io.emit('first deal');
         	// console.log("kitty: " + JSON.stringify(kitty, undefined, 2));
         	// console.log("hands: " + JSON.stringify(hands, undefined, 2));
 			  })
 			}
+		})
+
+		socket.on('ask for cards', function(username) {
+			var cards = hands[username];
+			socket.emit('receive cards', cards);
 		})
 
     // a user sends a chat message to everyone
