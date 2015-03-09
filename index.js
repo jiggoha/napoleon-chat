@@ -73,9 +73,7 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 		})
 
 		socket.on('ask for cards', function(username) {
-			console.log("unsorted: " + JSON.stringify(hands[username]) + "\n");
 			var cards = Cards.sort_hand(hands[username]);
-			console.log("sorted: " + JSON.stringify(cards) + "\n");
 			socket.emit('receive cards', cards);
 		})
 

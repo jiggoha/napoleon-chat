@@ -85,7 +85,11 @@
 
       socket.on('receive cards', function(cards) {
         for (var i=0; i<cards.length; i++) {
-          $('#cards_label').after($('<p>' + cards[i].value + '</p>'));
+          if (cards[i].suit == "spades" || cards[i].suit == "clubs") {
+            $('#cards_label').after($('<p style="background-color: black; color: white; padding: 5px; margin: 2px; display: inline-block">' + cards[i].value + '</p>'));
+          } else {
+            $('#cards_label').after($('<p style="background-color: darkred; color: white; padding: 5px; margin: 2px; display: inline-block">' + cards[i].value + '</p>'));
+          }
         }
       });
 
