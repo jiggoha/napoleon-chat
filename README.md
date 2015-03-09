@@ -21,6 +21,7 @@ DONE
   * Creation of a deck of cards
   * Shuffling and dealing the deck of cards
   * After 4 players join, the deck is dealt and each player sees their hands
+  * Hands are sorted after being dealt
 
 
 TODO

@@ -13,6 +13,43 @@ module.exports.shuffle = function shuffle(cards) {
 	return cards;
 }
 
+// sort a hand by suite and rank
+module.exports.sort_hand = function mergesort(list) {
+	if (list.length > 1) {
+		var list1 = list.splice(0, Math.floor(list.length/2));
+		var list2 = list; // the rest
+		list1 = mergesort(list1);
+		list2 = mergesort(list2);
+		return merge(list1, list2);
+	} else {
+		return list;
+	}
+}
+
+// sort helper
+function merge(list1, list2) {
+	var sorted_result = [];
+
+	while ((list1.length != 0) && (list2.length != 0)) {
+		if (list1[0].value < list2[0].value) {
+			// if the last element of list1 < last element of list2, append it
+			sorted_result.push(list1.shift());
+		} else {
+			// otherwise, append the last element of list2
+			sorted_result.push(list2.shift());
+		}
+	}
+
+	if (list1.length == 0) {
+		// if list1 empty, then add the rest of list2
+		sorted_result = sorted_result.concat(list2);
+	} else if (list2.length == 0) {
+		// if list2 empty, then add the rest of list1
+		sorted_result = sorted_result.concat(list1);
+	}
+
+	return sorted_result;
+}
 
 function swap(list, first, second) {
 	var temp = list[first];
