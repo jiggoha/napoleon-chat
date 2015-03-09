@@ -16,8 +16,8 @@ module.exports.shuffle = function shuffle(cards) {
 // sort a hand by suite and rank
 module.exports.sort_hand = function mergesort(list) {
 	if (list.length > 1) {
-		var list1 = list.splice(0, Math.floor(list.length/2));
-		var list2 = list; // the rest
+		var list1 = list.slice(0, Math.floor(list.length/2));
+		var list2 = list.slice(Math.floor(list.length/2)); // the rest
 		list1 = mergesort(list1);
 		list2 = mergesort(list2);
 		return merge(list1, list2);

@@ -3,7 +3,8 @@ var app = require('express')(),
 		io = require('socket.io')(http),
 		bodyParser = require('body-parser'),
 		MongoClient = require('mongodb').MongoClient,
-    Cards = require('./cards_controller');
+    Cards = require('./cards_controller'),
+    _  = require('underscore');
 
 var recent_messages = [];
 var HISTORY_LENGTH = 10;
@@ -75,6 +76,13 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 		socket.on('ask for cards', function(username) {
 			var cards = Cards.sort_hand(hands[username]);
 			socket.emit('receive cards', cards);
+		})
+
+		socket.on('play card', function(username, card_value) {
+			var card = _.findWhere(hands[username], { value: card_value});
+			hands[username] = _.without(hands[username], card);
+
+			console.log("after: " + JSON.stringify(hands[username]));
 		})
 
     // a user sends a chat message to everyone
