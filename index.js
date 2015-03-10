@@ -11,6 +11,7 @@ var HISTORY_LENGTH = 10;
 var usernames = [];
 var hands = {};
 var kitty = [];
+var whose_turn;
 
 // keeps recent_messages array to be a certain length
 function clip(array) {
@@ -67,22 +68,28 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
         	kitty = Cards.deal(cards, usernames)[1];
         	
         	io.emit('first deal');
+        	whose_turn = usernames[0];
         	// console.log("kitty: " + JSON.stringify(kitty, undefined, 2));
         	// console.log("hands: " + JSON.stringify(hands, undefined, 2));
 			  })
 			}
 		})
 
+		// deal cards
 		socket.on('ask for cards', function(username) {
 			var cards = Cards.sort_hand(hands[username]);
 			socket.emit('receive cards', cards);
 		})
 
 		socket.on('play card', function(username, card_value) {
-			var card = _.findWhere(hands[username], { value: card_value});
-			hands[username] = _.without(hands[username], card);
-
-			console.log("after: " + JSON.stringify(hands[username]));
+			if (whose_turn == username) {
+				var card = _.findWhere(hands[username], { value: card_value });
+				hands[username] = _.without(hands[username], card);
+				whose_turn = Cards.next_turn(usernames, whose_turn);
+				socket.emit('remove card', card_value);
+			} else {
+				socket.emit('not your turn', whose_turn);
+			}
 		})
 
     // a user sends a chat message to everyone

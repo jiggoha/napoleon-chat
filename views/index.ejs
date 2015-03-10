@@ -81,18 +81,31 @@
         display_message(username + " left");
       });
 
+      // initial deal
       socket.on('first deal', function() {
         socket.emit('ask for cards', socket.username);
       });
-
       socket.on('receive cards', function(cards) {
         for (var i=0; i<cards.length; i++) {
           if (cards[i].suit == "spades" || cards[i].suit == "clubs") {
-            $('#cards_label').after($('<p class="card" style="background-color: black; color: white; padding: 5px; margin: 2px; display: inline-block">' + cards[i].value + '</p>'));
+            $('#cards_label').after($('<p id=' + cards[i].value + ' class="card" style="background-color: black; color: white; padding: 5px; margin: 2px; display: inline-block">' + cards[i].value + '</p>'));
           } else {
-            $('#cards_label').after($('<p class="card" style="background-color: darkred; color: white; padding: 5px; margin: 2px; display: inline-block">' + cards[i].value + '</p>'));
+            $('#cards_label').after($('<p id=' + cards[i].value + ' class="card" style="background-color: darkred; color: white; padding: 5px; margin: 2px; display: inline-block">' + cards[i].value + '</p>'));
           }
         }
+      });
+
+      // turn verification
+      socket.on('not your turn', function(whose_turn) {
+        alert("It's not your turn to play a card. Wait for " + whose_turn + " to move.")
+      });
+      socket.on('remove card', function(card_value) {
+        $('#' + card_value).remove();
+      });
+
+      // trigger verification of whether you can play
+      $('body').on('click', '.card', function() {
+        socket.emit('play card', socket.username, $(this).text());
       });
 
       function display_message(text) {
@@ -105,11 +118,6 @@
           $('#messages').append($('<li>').text(text));
         }
       }
-
-      $('body').on('click', '.card', function() {
-        socket.emit('play card', socket.username, $(this).text());
-        $(this).remove();
-      });
     </script>
   </body>
 
