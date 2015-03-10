@@ -79,12 +79,14 @@ module.exports.deal = function deal(cards, usernames) {
   return [hands, kitty];
 }
 
-module.exports.next_turn = function next_turn(players, current) {
-	if (players.indexOf(current) == players.length - 1) {
-		return players[0];
+module.exports.next_turn = function next_turn(players, current_player) {
+	if (players.indexOf(current_player) == players.length - 1) {
+		current_player = players[0];
 	} else {
-		return players[players.indexOf(current) + 1];
+		current_player = players[players.indexOf(current_player) + 1];
 	}
+
+	return current_player;
 }
 
 module.exports.who_wins = function who_wins(trick, trump, secretary) {

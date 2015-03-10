@@ -15,6 +15,7 @@ var usernames = [];
 var hands = {};
 var kitty = [];
 var whose_turn;
+var current_round = [];
 
 // keeps recent_messages array to be a certain length
 function clip(array) {
@@ -64,7 +65,7 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 			io.emit('show users', usernames);
 
 			if (usernames.length === 4) {
-			  db.collection('cards').find().batchSize(52).toArray(function(err, cards) {
+			  db.collection('cards').find({}, { _id: false }).batchSize(52).toArray(function(err, cards) {
 			    Cards.shuffle(cards);
 
 			  	hands = Cards.deal(cards, usernames)[0];
@@ -86,9 +87,34 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 
 		socket.on('play card', function(username, card_value) {
 			if (whose_turn == username) {
+				// updates whose_turn and current_round
+				card = _.findWhere(hands[username], {value: card_value });
+
+				whose_turn = Cards.next_turn(usernames, whose_turn);
+				current_round.push(card);
+
+				if (current_round.length == 4) {
+					console.log(JSON.stringify(current_round));
+
+					var trump = "spades";
+					var secretary = {
+														"value" : "H1",
+														"name" : "Ace of Hearts",
+														"suit" : "hearts",
+														"rank" : 1
+													}
+
+					var winning_card = Cards.who_wins(current_round, trump, secretary);
+
+					console.log("winning_card: " + JSON.stringify(winning_card));
+
+					current_round = [];
+				}
+
+				// remove card from hand
 				var card = _.findWhere(hands[username], { value: card_value });
 				hands[username] = _.without(hands[username], card);
-				whose_turn = Cards.next_turn(usernames, whose_turn);
+
 				socket.emit('remove card', card_value);
 			} else {
 				socket.emit('not your turn', whose_turn);

@@ -15,7 +15,6 @@ DONE
   * Don’t send the same message to the user that sent it himself. Instead, append the message directly as soon as he presses enter.
   * Show who’s online
   * Add “{user} is typing” functionality
-  * Function for determing the winning card of a trick (~~NOTE: doesn't work when called from index.js yet because of scoping issue. Will fix.~~)
   
   Napoleon:
   * Creation of a deck of cards
@@ -24,6 +23,7 @@ DONE
   * Hands are sorted after being dealt
   * Remove card when player clicks to play it
   * Only allows players to play a card when it is their turn
+  * Function for determing the winning card of a trick
 
 
 TODO
@@ -35,4 +35,3 @@ TODO
   * Fix hacky dealing
   * Functions for declaring Napoleon and Secretary, for ending the game
   * Get user input for each of the above functions
-  * more...
