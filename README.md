@@ -33,5 +33,6 @@ TODO
   
   Napoleon:
   * Fix hacky dealing
+  * My 12 year old brother just reminded me that not the same person leads every time. I need to fix this so that the winner of each trick leads the next.
   * Functions for declaring Napoleon and Secretary, for ending the game
   * Get user input for each of the above functions

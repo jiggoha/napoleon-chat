@@ -89,13 +89,15 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 			if (whose_turn == username) {
 				// updates whose_turn and current_round
 				card = _.findWhere(hands[username], {value: card_value });
-
 				whose_turn = Cards.next_turn(usernames, whose_turn);
 				current_round.push(card);
 
-				if (current_round.length == 4) {
-					console.log(JSON.stringify(current_round));
+				// announce play
+				var play_msg = username + " played " + card.name;
+				io.emit('chat message', "!", play_msg);
 
+				// if the last person played, then determine winner
+				if (current_round.length == 4) {
 					var trump = "spades";
 					var secretary = {
 														"value" : "H1",
@@ -105,8 +107,14 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 													}
 
 					var winning_card = Cards.who_wins(current_round, trump, secretary);
-
 					console.log("winning_card: " + JSON.stringify(winning_card));
+
+					var winning_player = usernames[current_round.indexOf(winning_card)];
+					console.log("winning_player: " + winning_player);
+
+					// announce win
+					var win_msg = winning_player + " won with the " + winning_card.name;
+					io.emit('chat message', "!", win_msg);
 
 					current_round = [];
 				}
