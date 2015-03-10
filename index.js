@@ -1,10 +1,13 @@
 var app = require('express')(),
+		express = require('express'),
 		http = require('http').Server(app), // server
 		io = require('socket.io')(http),
 		bodyParser = require('body-parser'),
 		MongoClient = require('mongodb').MongoClient,
     Cards = require('./cards_controller'),
     _  = require('underscore');
+
+app.use(express.static(__dirname + '/public'));
 
 var recent_messages = [];
 var HISTORY_LENGTH = 10;
