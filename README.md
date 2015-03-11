@@ -39,6 +39,7 @@ DONE
   * Function for determing the winning card of a trick
   * The winner of each trick leads the next
   * Get user input declaring Napoleon, trump, secretary card
+  * Functions for declaring Napoleon, secretary card, trump
 
 
 
@@ -47,8 +48,7 @@ TODO
   Socket.io:
   * Add private messaging
   
-  
+
   Napoleon:
   * Fix hacky dealing
-  * Functions for declaring Napoleon and Secretary
-  * End game
+  * End game, keep track of points

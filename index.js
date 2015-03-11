@@ -12,10 +12,7 @@ app.use(express.static(__dirname + '/public'));
 var recent_messages = [];
 var HISTORY_LENGTH = 10;
 var usernames = [];
-var hands = {};
-var kitty = [];
-var whose_turn;
-var current_round = [];
+var game = {};
 
 // keeps recent_messages array to be a certain length
 function clip(array) {
@@ -72,92 +69,106 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 		socket.on('start game', function() {
 			console.log('game started');
 
+			game = {
+								napoleon: null,
+								secretary_player: null,
+								secretary_card: null,
+								trump: null,
+								cards: [],
+								hands: {},
+								kitty: [],
+								whose_turn: null,
+								usernames: usernames,
+								current_round: []
+			 			 }
+
 			db.collection('cards').find({}, { _id: false }).batchSize(52).toArray(function(err, cards) {
+				game.cards = cards;		    
+
 		    Cards.shuffle(cards);
 
-		  	hands = Cards.deal(cards, usernames)[0];
-      	kitty = Cards.deal(cards, usernames)[1];
+		  	game.hands = Cards.deal(cards, usernames)[0];
+      	game.kitty = Cards.deal(cards, usernames)[1];
       	
       	io.emit('first deal');
-      	whose_turn = usernames[0];
-      	// console.log("kitty: " + JSON.stringify(kitty, undefined, 2));
-      	// console.log("hands: " + JSON.stringify(hands, undefined, 2));
+      	// console.log("kitty: " + JSON.stringify(game.kitty, undefined, 2));
+      	// console.log("hands: " + JSON.stringify(game.hands, undefined, 2));
 			})
-
-			// var game = {
-			// 							napoleon: null,
-			// 							secretary: null,
-			// 							trump: null,
-			// 							hands: hands,
-			// 							kitty: kitty,
-			// 							whose_turn: napoleon,
-			// 							usernames: usernames,
-			// 							current_round: current_round
-			// 					 }
 
 			io.emit('chat message', "!", "Declare bid, secretary, napoleon, and trump. E.g. '\\declare napoleon: valerie'");
 		})
 
 		// deal cards
 		socket.on('ask for cards', function(username) {
-			var cards = Cards.sort_hand(hands[username]);
+			var cards = Cards.sort_hand(game.hands[username]);
 			socket.emit('receive cards', cards);
 		})
 
 		// initialization of napoleon, secretary, trump
 		socket.on('declare napoleon', function(username) {
+			game.whose_turn = username;
 			console.log("napoleon: " + username);			
 		})
-		socket.on('declare secretary', function(username) {
-			console.log("secretary: " + username);			
+		socket.on('declare secretary', function(card_value) {
+			game.secretary_card = _.findWhere(game.cards, { value: card_value });
+
+			for (var i=0; i < game.usernames.length; i++) {
+				if (_.findWhere(game.hands[usernames[i]], game.secretary_card)) {
+					game.secretary_player = game.usernames[i];
+					break;
+				}
+			}
+
+			console.log("secretary card: " + JSON.stringify(game.secretary_card));
+			console.log("secretary player: " + game.secretary_player);
 		})
 		socket.on('declare trump', function(trump) {
 			console.log("trump: " + trump);
+			game.trump = trump;
 		})
 
 		socket.on('play card', function(username, card_value) {
-			if (whose_turn == username) {
+			if (game.whose_turn == username) {
 				// updates whose_turn and current_round
-				card = _.findWhere(hands[username], {value: card_value });
-				whose_turn = Cards.next_turn(usernames, whose_turn);
-				current_round.push(card);
+				card = _.findWhere(game.hands[username], { value: card_value });
+				game.whose_turn = Cards.next_turn(usernames, game.whose_turn);
+				game.current_round.push(card);
 
 				// announce play
 				var play_msg = username + " played " + card.name;
 				io.emit('chat message', "!", play_msg);
 
 				// if the last person played, then determine winner
-				if (current_round.length == 4) {
-					var trump = "spades";
-					var secretary = {
+				if (game.current_round.length == 4) {
+					game.secretary = {
 														"value" : "H1",
 														"name" : "Ace of Hearts",
 														"suit" : "hearts",
 														"rank" : 1
 													}
 
-					var winning_card = Cards.who_wins(current_round, trump, secretary);
+					var winning_card = Cards.who_wins(game.current_round, game.trump, game.secretary);
 					console.log("winning_card: " + JSON.stringify(winning_card));
 
-					var winning_player = usernames[current_round.indexOf(winning_card)];
+					var winning_player = usernames[game.current_round.indexOf(winning_card)];
 					console.log("winning_player: " + winning_player);
 
 					// announce win
 					var win_msg = winning_player + " won with the " + winning_card.name;
 					io.emit('chat message', "!", win_msg);
 
-					whose_turn = winning_player;
+					game.whose_turn = winning_player;
 
-					current_round = [];
+					game.current_round = [];
 				}
 
 				// remove card from hand
-				var card = _.findWhere(hands[username], { value: card_value });
-				hands[username] = _.without(hands[username], card);
+				var card = _.findWhere(game.hands[username], { value: card_value });
+				game.hands[username] = _.without(game.hands[username], card);
 
 				socket.emit('remove card', card_value);
 			} else {
-				socket.emit('not your turn', whose_turn);
+				socket.emit('not your turn', game.whose_turn);
 			}
 		})
 
