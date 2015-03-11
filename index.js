@@ -41,8 +41,6 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 	app.get('/', function(req, res) {
 		res.render('index');
 	});
-
-	// deck
 	
 	io.on('connection', function(socket) {
 		console.log('a user connected');
@@ -65,24 +63,56 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 			io.emit('show users', usernames);
 
 			if (usernames.length === 4) {
-			  db.collection('cards').find({}, { _id: false }).batchSize(52).toArray(function(err, cards) {
-			    Cards.shuffle(cards);
-
-			  	hands = Cards.deal(cards, usernames)[0];
-        	kitty = Cards.deal(cards, usernames)[1];
-        	
-        	io.emit('first deal');
-        	whose_turn = usernames[0];
-        	// console.log("kitty: " + JSON.stringify(kitty, undefined, 2));
-        	// console.log("hands: " + JSON.stringify(hands, undefined, 2));
-			  })
+				var init_msg = "Four players have joined. To start game, any player type '\\start game'.";
+				io.emit('chat message', "!", init_msg);
 			}
+		})
+
+		// deal
+		socket.on('start game', function() {
+			console.log('game started');
+
+			db.collection('cards').find({}, { _id: false }).batchSize(52).toArray(function(err, cards) {
+		    Cards.shuffle(cards);
+
+		  	hands = Cards.deal(cards, usernames)[0];
+      	kitty = Cards.deal(cards, usernames)[1];
+      	
+      	io.emit('first deal');
+      	whose_turn = usernames[0];
+      	// console.log("kitty: " + JSON.stringify(kitty, undefined, 2));
+      	// console.log("hands: " + JSON.stringify(hands, undefined, 2));
+			})
+
+			// var game = {
+			// 							napoleon: null,
+			// 							secretary: null,
+			// 							trump: null,
+			// 							hands: hands,
+			// 							kitty: kitty,
+			// 							whose_turn: napoleon,
+			// 							usernames: usernames,
+			// 							current_round: current_round
+			// 					 }
+
+			io.emit('chat message', "!", "Declare bid, secretary, napoleon, and trump. E.g. '\\declare napoleon: valerie'");
 		})
 
 		// deal cards
 		socket.on('ask for cards', function(username) {
 			var cards = Cards.sort_hand(hands[username]);
 			socket.emit('receive cards', cards);
+		})
+
+		// initialization of napoleon, secretary, trump
+		socket.on('declare napoleon', function(username) {
+			console.log("napoleon: " + username);			
+		})
+		socket.on('declare secretary', function(username) {
+			console.log("secretary: " + username);			
+		})
+		socket.on('declare trump', function(trump) {
+			console.log("trump: " + trump);
 		})
 
 		socket.on('play card', function(username, card_value) {
@@ -115,6 +145,8 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 					// announce win
 					var win_msg = winning_player + " won with the " + winning_card.name;
 					io.emit('chat message', "!", win_msg);
+
+					whose_turn = winning_player;
 
 					current_round = [];
 				}

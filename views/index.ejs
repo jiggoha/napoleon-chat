@@ -18,8 +18,23 @@
     <script>
       var socket = io(); // defaults to connecting to the URL of the 
 
-      $('form').submit(function() {    
+      $('form').submit(function() {
+        var command = $('#m').val();
+        var first_two = $('#m').val().split(" ").splice(0,2).join(" ");
+        var arg = $('#m').val().split(" ")[2];
+
+        if ($('#m').val() == '\\start game') {
+          socket.emit('start game');
+        } else if (first_two == '\\declare napoleon') {
+          socket.emit('declare napoleon', arg);
+        } else if (first_two == '\\declare trump') {
+          socket.emit('declare trump', arg);
+        } else if (first_two == '\\declare secretary') {
+          socket.emit('declare secretary', arg);
+        }
+        
         socket.emit('chat message', $('#m').val());
+
         $('#m').val('');
         socket.emit('not typing', socket.username);
         return false;

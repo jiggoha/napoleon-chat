@@ -1,9 +1,21 @@
-# napoleon-chat
-Chat component of Napoleon game that will hopefully expand to the whole thing.
-Express and Socket.IO practice.
+# Napoleon
+Napoleon card game integrated with real-time chat component.
+Express, Socket.IO, MongoDB, JQuery.
 
+Rules:
+* 4 player card game with turn based tricks
+* players start by bidding on number of royals (A, K, Q, J) that can be won by the "attacking" team (need for chat integration)
+* player who bids highest becomes Napoleon
+* Napoleon may exchange 4 of his/her cards with those in the kitty once in the beginning of the game
+* Napoleon declares a secretary card as the most powerful card that wins any trick
+* player who holds the secretary card is the secretary, and his/her identity is secret initially
+* the secretary card may be played whenever
+* Napoleon also declares a suit to be trump
+* trump must be played only when a player cannot follow suite
+* otherwise, players must always follow suit
+* Napoleon and secretary are on a team to win the number of royals that the Napoleon initially bid. The other two players on the "defending" team try to win enough royals to stop the Napoleon and secretary from achieving their bid goal.
 
-Rules of the game found here: http://bantha.org/~develin/cardgames.html#ch6. My implementation assumes there are 4 players.
+More in-depth rules of the game may be found here: http://bantha.org/~develin/cardgames.html#ch6. My implementation assumes there are 4 players.
 
 
 DONE
@@ -16,6 +28,7 @@ DONE
   * Show who’s online
   * Add “{user} is typing” functionality
   
+
   Napoleon:
   * Creation of a deck of cards
   * Shuffling and dealing the deck of cards
@@ -24,6 +37,9 @@ DONE
   * Remove card when player clicks to play it
   * Only allows players to play a card when it is their turn
   * Function for determing the winning card of a trick
+  * The winner of each trick leads the next
+  * Get user input declaring Napoleon, trump, secretary card
+
 
 
 TODO
@@ -31,8 +47,8 @@ TODO
   Socket.io:
   * Add private messaging
   
+  
   Napoleon:
   * Fix hacky dealing
-  * My 12 year old brother just reminded me that not the same person leads every time. I need to fix this so that the winner of each trick leads the next.
-  * Functions for declaring Napoleon and Secretary, for ending the game
-  * Get user input for each of the above functions
+  * Functions for declaring Napoleon and Secretary
+  * End game
