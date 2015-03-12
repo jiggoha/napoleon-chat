@@ -78,10 +78,16 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 								hands: {},
 								kitty: [],
 								whose_turn: null,
-								usernames: usernames,
+								points: {},
+								bid: 0,
 								current_round: []
 			 			 }
 
+			for (var i = 0; i < usernames.length; i++) {
+				game.points[usernames[i]] = 0;
+			}
+
+			// return all cards without _id field
 			db.collection('cards').find({}, { _id: false }).batchSize(52).toArray(function(err, cards) {
 				game.cards = cards;		    
 
@@ -106,15 +112,17 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 
 		// initialization of napoleon, secretary, trump
 		socket.on('declare napoleon', function(username) {
+			game.napoleon = username;
 			game.whose_turn = username;
 			console.log("napoleon: " + username);			
 		})
 		socket.on('declare secretary', function(card_value) {
 			game.secretary_card = _.findWhere(game.cards, { value: card_value });
 
-			for (var i=0; i < game.usernames.length; i++) {
+			// who holds the secretary card
+			for (var i=0; i < usernames.length; i++) {
 				if (_.findWhere(game.hands[usernames[i]], game.secretary_card)) {
-					game.secretary_player = game.usernames[i];
+					game.secretary_player = usernames[i];
 					break;
 				}
 			}
@@ -125,6 +133,10 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 		socket.on('declare trump', function(trump) {
 			console.log("trump: " + trump);
 			game.trump = trump;
+		})
+		socket.on('declare bid', function(bid) {
+			console.log("bid: " + bid);
+			game.bid = Number(bid);
 		})
 
 		socket.on('play card', function(username, card_value) {
@@ -140,13 +152,6 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 
 				// if the last person played, then determine winner
 				if (game.current_round.length == 4) {
-					game.secretary = {
-														"value" : "H1",
-														"name" : "Ace of Hearts",
-														"suit" : "hearts",
-														"rank" : 1
-													}
-
 					var winning_card = Cards.who_wins(game.current_round, game.trump, game.secretary);
 					console.log("winning_card: " + JSON.stringify(winning_card));
 
@@ -156,6 +161,26 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 					// announce win
 					var win_msg = winning_player + " won with the " + winning_card.name;
 					io.emit('chat message', "!", win_msg);
+
+					// track points
+					for (var i=0; i < game.current_round.length; i++) {
+						if ((game.current_round[i].rank > 10) || (game.current_round[i].rank == 1)) {
+							game.points[winning_player] += 1;
+							
+						}
+					}
+					console.log(JSON.stringify(game.points));
+
+					var napoleon_team_points = game.points[game.napoleon] + game.points[game.secretary_player];
+					var defending_team = _.without(usernames, game.napoleon, game.secretary_player)
+					var defending_team_points = game.points[defending_team[0]] + game.points[defending_team[1]];
+					if (napoleon_team_points > game.bid) {
+						console.log('napoleon wins');
+						io.emit('chat message', '!', game.napoleon + " and " + game.secretary_player + " won with " + napoleon_team_points + " points.");
+					} else if (16 - defending_team_points < game.bid) {
+						console.log('napoleon loses');
+						io.emit('chat message', '!', game.napoleon + " and " + game.secretary_player + " lost. " + defending_team[0] + " and " + defending_team[1] + " took " + defending_team_points + " points.");
+					}
 
 					game.whose_turn = winning_player;
 

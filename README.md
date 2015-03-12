@@ -40,6 +40,7 @@ DONE
   * The winner of each trick leads the next
   * Get user input declaring Napoleon, trump, secretary card
   * Functions for declaring Napoleon, secretary card, trump
+  * End game, keep track of points
 
 
 
@@ -51,4 +52,9 @@ TODO
 
   Napoleon:
   * Fix hacky dealing
-  * End game, keep track of points
+  * Declare bid
+  * Who wins bug where Secretary card doesn't win
+  * Who wins bug if first player isn't the first player in [usernames]
+  * Who wins bug where Ace isn't highest
+  * WHO WINS IS JUST ONE BIG BUG.
+  * Allow Napoleon to trade in with kitty

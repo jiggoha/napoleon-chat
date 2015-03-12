@@ -31,6 +31,8 @@
           socket.emit('declare trump', arg);
         } else if (first_two == '\\declare secretary') {
           socket.emit('declare secretary', arg);
+        } else if (first_two == '\\declare bid') {
+          socket.emit('declare bid', arg);
         }
         
         socket.emit('chat message', $('#m').val());
@@ -112,6 +114,7 @@
       $('body').on('click', '.card', function() {
         socket.emit('play card', socket.username, $(this).text());
       });
+
 
       function display_message(text) {
         var last_message = $('#messages li:last').text()
