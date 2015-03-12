@@ -41,6 +41,7 @@ DONE
   * Get user input declaring Napoleon, trump, secretary card
   * Functions for declaring Napoleon, secretary card, trump
   * End game, keep track of points
+  * Declare bid
 
 
 
@@ -52,7 +53,6 @@ TODO
 
   Napoleon:
   * Fix hacky dealing
-  * Declare bid
   * Who wins bug where Secretary card doesn't win
   * Who wins bug if first player isn't the first player in [usernames]
   * Who wins bug where Ace isn't highest
