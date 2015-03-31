@@ -42,7 +42,9 @@ DONE
   * Functions for declaring Napoleon, secretary card, trump
   * End game, keep track of points
   * Declare bid
-
+  * Who wins bug where Ace isn't highest fixed
+  * Who wins bug where Secretary card doesn't win fixed
+  * Who wins bug: card is removed from hand so can't search for it
 
 
 TODO
@@ -50,11 +52,8 @@ TODO
   Socket.io:
   * Add private messaging
   
-
   Napoleon:
-  * Fix hacky dealing
-  * Who wins bug where Secretary card doesn't win
-  * Who wins bug if first player isn't the first player in [usernames]
-  * Who wins bug where Ace isn't highest
-  * WHO WINS IS JUST ONE BIG BUG.
   * Allow Napoleon to trade in with kitty
+  * Fix hacky dealing
+  * Clean and refactor code
+

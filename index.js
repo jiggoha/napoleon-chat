@@ -7,8 +7,6 @@ var app = require('express')(),
     Cards = require('./cards_controller'),
     _  = require('underscore');
 
-app.use(express.static(__dirname + '/public'));
-
 var recent_messages = [];
 var HISTORY_LENGTH = 10;
 var usernames = [];
@@ -33,6 +31,7 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 	app.use(bodyParser.urlencoded({
 		extended: true
 	}))
+	app.use(express.static(__dirname + '/public'));
 
   // the main chatroom
 	app.get('/', function(req, res) {
@@ -98,7 +97,7 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
       	
       	io.emit('first deal');
       	// console.log("kitty: " + JSON.stringify(game.kitty, undefined, 2));
-      	// console.log("hands: " + JSON.stringify(game.hands, undefined, 2));
+      	console.log("hands: " + JSON.stringify(game.hands, undefined, 2));
 			})
 
 			io.emit('chat message', "!", "Declare bid, secretary, napoleon, and trump. E.g. '\\declare napoleon: valerie'");
@@ -144,7 +143,9 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 				// updates whose_turn and current_round
 				card = _.findWhere(game.hands[username], { value: card_value });
 				game.whose_turn = Cards.next_turn(usernames, game.whose_turn);
-				game.current_round.push(card);
+				
+				var player_card = { username: username, card_played: card };
+				game.current_round.push(player_card);
 
 				// announce play
 				var play_msg = username + " played " + card.name;
@@ -152,21 +153,25 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 
 				// if the last person played, then determine winner
 				if (game.current_round.length == 4) {
-					var winning_card = Cards.who_wins(game.current_round, game.trump, game.secretary);
-					console.log("winning_card: " + JSON.stringify(winning_card));
+					console.log("current round: " + JSON.stringify(game.current_round));
+					var winning_player_card = Cards.who_wins(game.current_round, game.trump, game.secretary_card);
+					var winning_player = winning_player_card.username;
+					console.log("winning_card: " + JSON.stringify(winning_player_card));
 
-					var winning_player = usernames[game.current_round.indexOf(winning_card)];
-					console.log("winning_player: " + winning_player);
+
+					// var winning_player = Cards.who_owns(usernames, game.hands, winning_card);
+					// console.log("usernames: " + usernames);
+					// console.log("game.hands: " + JSON.stringify(game.hands));
+					// console.log("winning_player: " + winning_player);
 
 					// announce win
-					var win_msg = winning_player + " won with the " + winning_card.name;
+					var win_msg = winning_player + " won with the " + winning_player_card.card_played.value;
 					io.emit('chat message', "!", win_msg);
 
 					// track points
 					for (var i=0; i < game.current_round.length; i++) {
-						if ((game.current_round[i].rank > 10) || (game.current_round[i].rank == 1)) {
+						if (game.current_round[i].rank > 10) {
 							game.points[winning_player] += 1;
-							
 						}
 					}
 					console.log(JSON.stringify(game.points));

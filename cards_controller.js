@@ -89,29 +89,47 @@ module.exports.next_turn = function next_turn(players, current_player) {
 	return current_player;
 }
 
+module.exports.who_owns = function who_owns(usernames, hands, card) {
+	for (var i=0; i < usernames.length; i++) {
+		if (find(hands[usernames[i]], card)) {
+			return usernames[i];
+		} 
+		console.log(i);
+	}
+}
+
+function find(list, element) {
+	console.log("target: " + JSON.stringify(element));
+	for (var i=0; i < list.length; i++) {
+		console.log("guess: " + JSON.stringify(list[i]));
+		if (JSON.stringify(element) == JSON.stringify(list[i])) {
+			return true;
+		}
+	}
+
 module.exports.who_wins = function who_wins(trick, trump, secretary) {
 	var lead = trick[0];
 	var winning = lead; // assume lead is winning
 
 	// if the secretary leads with the secretary card
-	if (JSON.stringify(lead) === JSON.stringify(secretary)) {
+	if (JSON.stringify(lead.card_played) === JSON.stringify(secretary)) {
 		return lead;
 	}
 
 	for (i = 1; i < 4; i++) {
 		// if secretary is played, it beats everything
-		if (JSON.stringify(trick[i]) === JSON.stringify(secretary)) {
+		if (JSON.stringify(trick[i].card_played) === JSON.stringify(secretary)) {
 			winning = trick[i];
 			break
 		}
 
 		// trump beats whatever is winning if winning is not trump
-		if ((winning.suit != trump) && (trick[i].suit === trump)) {
+		if ((winning.card_played.suit != trump) && (trick[i].card_played.suit === trump)) {
 			winning = trick[i];
 		}
 
 		// check if the next card played is the same suit and ranked higher
-		if ((winning.suit === trick[i].suit) && (winning.rank < trick[i].rank)) {
+		if ((winning.card_played.suit === trick[i].card_played.suit) && (winning.card_played.rank < trick[i].card_played.rank)) {
 			winning = trick[i];
 		}
 	}
