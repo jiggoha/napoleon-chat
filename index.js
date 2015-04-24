@@ -22,6 +22,21 @@ function clip(array) {
   }
 }
 
+function calculate_points(game, winning_player, clear_current_round) {
+	console.log(JSON.stringify(game));
+	console.log(game);
+
+	for (var i = 0; i < game.current_round.length; i++) {
+		console.log("rank" + i + ": " + game.current_round[i].card_played.rank)
+		if (game.current_round[i].card_played.rank > 10) {
+			game.points[winning_player] += 1;
+		}
+	}
+	console.log(JSON.stringify(game.points));
+
+	clear_current_round();
+}
+
 MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 	'use strict';
 	if (err) throw err;
@@ -163,15 +178,9 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 					io.emit('chat message', "!", win_msg);
 
 					// track points
-					for (var i = 0; i < game.current_round.length; i++) {
-						console.log("rank" + i + ": " + game.current_round[i].rank)
-						if (game.current_round[i].rank > 10) {
-							console.log("winning player: " + winning_player);
-							console.log("game.points[winning_player]");
-							game.points[winning_player] += 1;
-						}
-					}
-					console.log(JSON.stringify(game.points));
+					calculate_points(game, winning_player, function() {
+						game.current_round = [];
+					})
 
 					var napoleon_team_points = game.points[game.napoleon] + game.points[game.secretary_player];
 					var defending_team = _.without(usernames, game.napoleon, game.secretary_player)
@@ -185,8 +194,6 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 					}
 
 					game.whose_turn = winning_player;
-
-					game.current_round = [];
 				}
 
 				// remove card from hand
