@@ -158,19 +158,16 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 					var winning_player = winning_player_card.username;
 					console.log("winning_card: " + JSON.stringify(winning_player_card));
 
-
-					// var winning_player = Cards.who_owns(usernames, game.hands, winning_card);
-					// console.log("usernames: " + usernames);
-					// console.log("game.hands: " + JSON.stringify(game.hands));
-					// console.log("winning_player: " + winning_player);
-
 					// announce win
 					var win_msg = winning_player + " won with the " + winning_player_card.card_played.value;
 					io.emit('chat message', "!", win_msg);
 
 					// track points
-					for (var i=0; i < game.current_round.length; i++) {
+					for (var i = 0; i < game.current_round.length; i++) {
+						console.log("rank" + i + ": " + game.current_round[i].rank)
 						if (game.current_round[i].rank > 10) {
+							console.log("winning player: " + winning_player);
+							console.log("game.points[winning_player]");
 							game.points[winning_player] += 1;
 						}
 					}

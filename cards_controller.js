@@ -106,6 +106,7 @@ function find(list, element) {
 			return true;
 		}
 	}
+}
 
 module.exports.who_wins = function who_wins(trick, trump, secretary) {
 	var lead = trick[0];
