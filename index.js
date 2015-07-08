@@ -231,7 +231,7 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 			recent_messages.push(socket.username + " left");
 			clip(recent_messages);
 
-			usernames.splice(usernames.indexOf(socket.username),1) // delete username
+			usernames.splice(usernames.indexOf(socket.username), 1) // delete username
 
 			io.emit('user disconnected', socket.username);
 			io.emit('show users', usernames);

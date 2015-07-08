@@ -46,6 +46,8 @@ DONE
   * Who wins bug where Secretary card doesn't win fixed
   * Who wins bug: card is removed from hand so can't search for it
 
+  Started testing
+
 
 TODO
 

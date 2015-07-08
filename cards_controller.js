@@ -26,8 +26,8 @@ module.exports.sort_hand = function mergesort(list) {
 	}
 }
 
-// sort helper
-function merge(list1, list2) {
+// sort helper, increasing order
+module.exports.merge = function merge(list1, list2) {
 	var sorted_result = [];
 
 	while ((list1.length != 0) && (list2.length != 0)) {
@@ -51,6 +51,8 @@ function merge(list1, list2) {
 	return sorted_result;
 }
 
+// switch two elements in a list
+//module.exports.swap =
 function swap(list, first, second) {
 	var temp = list[first];
 	list[first] = list[second];
