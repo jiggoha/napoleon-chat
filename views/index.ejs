@@ -16,6 +16,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 
     <script>
+      helper = require("../client_helper.js");
+
       var socket = io(); // defaults to connecting to the URL of the 
 
       $('form').submit(function() {
@@ -72,6 +74,11 @@
 
       socket.on('prompt username', function(username) {
         var username = prompt("What is your name?");
+
+        while (username == '') {
+          username = prompt("No, seriously, what is your name?");
+        }
+
         socket.username = username;
         socket.emit('add username', username);
       });
@@ -114,7 +121,6 @@
       $('body').on('click', '.card', function() {
         socket.emit('play card', socket.username, $(this).text());
       });
-
 
       function display_message(text) {
         var last_message = $('#messages li:last').text()

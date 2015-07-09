@@ -14,7 +14,7 @@ module.exports.shuffle = function shuffle(cards) {
 }
 
 // sort a hand by suite and rank
-module.exports.sort_hand = function mergesort(list) {
+var mergesort = module.exports.sort_hand = function (list) {
 	if (list.length > 1) {
 		var list1 = list.slice(0, Math.floor(list.length/2));
 		var list2 = list.slice(Math.floor(list.length/2)); // the rest
@@ -27,7 +27,7 @@ module.exports.sort_hand = function mergesort(list) {
 }
 
 // sort helper, increasing order
-module.exports.merge = function merge(list1, list2) {
+var merge = module.exports.merge = function(list1, list2) {
 	var sorted_result = [];
 
 	while ((list1.length != 0) && (list2.length != 0)) {
@@ -52,8 +52,7 @@ module.exports.merge = function merge(list1, list2) {
 }
 
 // switch two elements in a list
-//module.exports.swap =
-function swap(list, first, second) {
+var swap = module.exports.swap = function(list, first, second) {
 	var temp = list[first];
 	list[first] = list[second];
 	list[second] = temp;
@@ -123,7 +122,7 @@ module.exports.who_wins = function who_wins(trick, trump, secretary) {
 		// if secretary is played, it beats everything
 		if (JSON.stringify(trick[i].card_played) === JSON.stringify(secretary)) {
 			winning = trick[i];
-			break
+			break;
 		}
 
 		// trump beats whatever is winning if winning is not trump
