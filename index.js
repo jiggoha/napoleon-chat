@@ -7,35 +7,12 @@ var app = require('express')(),
     Cards = require('./cards_controller'),
     _  = require('underscore');
 
+var clip = require('./helper').clip;
+var calculate_points = require('./helper').calculate_points;
+
 var recent_messages = [];
-var HISTORY_LENGTH = 10;
 var usernames = [];
 var game = {};
-
-// keeps recent_messages array to be a certain length
-function clip(array) {
-  if (array.length > HISTORY_LENGTH) {
-    var howmany_extra = array.length - HISTORY_LENGTH;
-    return array.splice(0, howmany_extra);
-  } else {
-    return array;
-  }
-}
-
-function calculate_points(game, winning_player, clear_current_round) {
-	console.log(JSON.stringify(game));
-	console.log(game);
-
-	for (var i = 0; i < game.current_round.length; i++) {
-		console.log("rank" + i + ": " + game.current_round[i].card_played.rank)
-		if (game.current_round[i].card_played.rank > 10) {
-			game.points[winning_player] += 1;
-		}
-	}
-	console.log(JSON.stringify(game.points));
-
-	clear_current_round();
-}
 
 MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 	'use strict';
@@ -51,6 +28,10 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
   // the main chatroom
 	app.get('/', function(req, res) {
 		res.render('index');
+	});
+
+	app.get('/login', function(req, res) {
+		res.render('login');
 	});
 	
 	io.on('connection', function(socket) {
