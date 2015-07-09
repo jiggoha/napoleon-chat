@@ -21,6 +21,7 @@ describe('Cards controller', function() {
 	})
 
   describe('#shuffle(cards)', function() {
+  	// this is kind of a weird test
   	it('should not return the same hand', function() {
 
   		for (i = 0; i < 12; i++) {
@@ -38,13 +39,16 @@ describe('Cards controller', function() {
 
   	it('should contain all unique cards', function() {
   		cards =  _.sortBy(cards, "rank");
-  		console.log(cards);
 
-  		for (i = 0; i < 51; i++) {
-  			var match = _.isEqual(cards[i], cards[i+1])
+  		for (i = 0; i < 1; i++) {
+  			var match = _.isEqual(cards[i], cards[i+1]);
   			assert.equal(match, 0);
   		}
   	})
+
+  	after(function() {
+  		Cards.shuffle(cards)
+  	});
 	});
 
 	describe('#deal(cards, usernames)', function() {
@@ -52,8 +56,9 @@ describe('Cards controller', function() {
 		var hands;
 		var kitty;
 		before(function(done) {
-			hands = Cards.deal(cards, usernames)[0];
-			kitty = Cards.deal(cards, usernames)[1];
+			result = Cards.deal(cards, usernames);
+			hands = result[0];
+			kitty = result[1];
 			done();
 		})
 
@@ -67,7 +72,6 @@ describe('Cards controller', function() {
 			assert.equal(kitty.length, 4);
 		});
 
-		// this fails. WHY.
 		it('should not give the same card to more than one person/kitty', function() {
 			for (i = 0; i < 52; i++) {
 	  		var in_hands = 0;
@@ -89,23 +93,23 @@ describe('Cards controller', function() {
 	  		assert.equal(in_hands, 1);
 	  	}
 		});
+	});
 
-		// module.exports.swap in cards_controller.js is commented out so this is commented out
-		// describe('#swap(list, first, second)', function () {
-	 //    it('should switch two elements in a list', function () {
-	 //      assert.equal(JSON.stringify([1,2,3,4,5]),
-	 //      						 JSON.stringify(Cards.swap([1,2,3,4,5], 2, 2)));
-	 //    });
-	 //  });
+// module.exports.swap in cards_controller.js is commented out so this is commented out
+	// describe('#swap(list, first, second)', function () {
+ //    it('should switch two elements in a list', function () {
+ //      assert.equal(JSON.stringify([1,2,3,4,5]),
+ //      						 JSON.stringify(Cards.swap([1,2,3,4,5], 2, 2)));
+ //    });
+ //  });
 
-		describe('#merge(list1, list2)', function() {
-			it('should combine two ordered list to produce a bigger ordered list', function() {
-				assert.equal(_.isEqual([1,2,3], Cards.merge([],[1,2,3])), 1);
+	describe('#merge(list1, list2)', function() {
+		it('should combine two ordered list to produce a bigger ordered list', function() {
+			assert.equal(_.isEqual([1,2,3], Cards.merge([],[1,2,3])), 1);
 
-				assert.equal(_.isEqual([1,2,3,4], Cards.merge([3,4],[1,2])), 1);
+			assert.equal(_.isEqual([1,2,3,4], Cards.merge([3,4],[1,2])), 1);
 
-				assert.equal(_.isEqual([{"value":1}, {"value":2}, {"value":3}, {"value":4}], Cards.merge([{value: 1},{value: 2}], [{value: 3},{value: 4}])), 1);
-			});
+			assert.equal(_.isEqual([{"value":1}, {"value":2}, {"value":3}, {"value":4}], Cards.merge([{value: 1},{value: 2}], [{value: 3},{value: 4}])), 1);
 		});
 	});
 });

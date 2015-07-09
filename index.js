@@ -107,8 +107,9 @@ MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
 
 		    Cards.shuffle(cards);
 
-		  	game.hands = Cards.deal(cards, usernames)[0];
-      	game.kitty = Cards.deal(cards, usernames)[1];
+		    result = Cards.deal(cards, usernames);
+		  	game.hands = result[0];
+      	game.kitty = result[1];
       	
       	io.emit('first deal');
       	// console.log("kitty: " + JSON.stringify(game.kitty, undefined, 2));
