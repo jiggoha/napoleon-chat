@@ -63,7 +63,7 @@ var swap = module.exports.swap = function(list, first, second) {
 // assign people (owners) to cards and set aside kitty
 module.exports.deal = function deal(cards, usernames) {
 	var hands = {};
-  var kitty = cards.splice(0, 4);
+  var kitty = cards.slice(48);
 
   for (i = 0; i < 4; i++) {
     for (j = 0; j < 12; j++) {

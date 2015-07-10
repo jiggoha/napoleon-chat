@@ -1,3 +1,5 @@
+// Structure of app based on https://github.com/madhums/node-express-mongoose-demo
+
 var express = require('express'),
 		app = express(),
 		http = require('http').Server(app), // server

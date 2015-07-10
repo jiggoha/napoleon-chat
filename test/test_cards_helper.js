@@ -56,9 +56,8 @@ describe('Cards controller', function() {
 		var hands;
 		var kitty;
 		before(function(done) {
-			result = Cards.deal(cards, usernames);
-			hands = result[0];
-			kitty = result[1];
+			hands = Cards.deal(cards, usernames)[0];
+			kitty = Cards.deal(cards, usernames)[1];
 			done();
 		})
 

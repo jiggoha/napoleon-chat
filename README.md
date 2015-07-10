@@ -56,6 +56,3 @@ TODO
   
   Napoleon:
   * Allow Napoleon to trade in with kitty
-  * Fix hacky dealing
-  * Clean and refactor code
-
