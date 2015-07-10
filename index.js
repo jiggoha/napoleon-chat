@@ -1,14 +1,14 @@
-var app = require('express')(),
-		express = require('express'),
+var express = require('express'),
+		app = express(),
 		http = require('http').Server(app), // server
 		io = require('socket.io')(http),
 		bodyParser = require('body-parser'),
 		MongoClient = require('mongodb').MongoClient,
-    Cards = require('./cards_controller'),
+    Cards = require('./controllers/cards'),
     _  = require('underscore');
 
-var clip = require('./helper').clip;
-var calculate_points = require('./helper').calculate_points;
+var clip = require('./helpers/helper').clip;
+var calculate_points = require('./helpers/helper').calculate_points;
 
 var recent_messages = [];
 var usernames = [];
@@ -29,8 +29,8 @@ app.get('/', function(req, res) {
 app.get('/login', function(req, res) {
 	res.render('login');
 });
-	
 
+// events
 io.on('connection', function(socket) {
 	console.log('a user connected');
 	socket.emit('load previous messages', recent_messages);
