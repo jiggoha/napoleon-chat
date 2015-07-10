@@ -1,8 +1,7 @@
-var assert = require('./common').assert;
-var _ = require('./common').underscore;
-
-var Cards = require("../cards_controller");
-MongoClient = require('mongodb').MongoClient;
+var assert = require('./common').assert,
+		_ = require('./common').underscore,
+		Cards = require("../helpers/cards"),
+		MongoClient = require('mongodb').MongoClient;
 
 describe('Cards controller', function() {
   var cards;
