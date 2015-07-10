@@ -1,7 +1,22 @@
 var MongoClient = require('mongodb').MongoClient,
 		Cards = require('../helpers/cards'),
-		Pretty = require('../helpers/client');
+		Pretty = require('../helpers/client'),
     _  = require('underscore');
+
+function declare_secretary(game, usernames, card_value) {
+	game.secretary_card = _.findWhere(game.cards, { value: card_value });
+
+	// who holds the secretary card
+	for (var i=0; i < usernames.length; i++) {
+		if (_.findWhere(game.hands[usernames[i]], game.secretary_card)) {
+			game.secretary_player = usernames[i];
+			break;
+		}
+	}
+
+	console.log("secretary card: " + JSON.stringify(game.secretary_card));
+	console.log("secretary player: " + game.secretary_player);
+}
 
 module.exports = function(io) {
 	var recent_messages = [];
@@ -15,23 +30,23 @@ module.exports = function(io) {
 		io.emit('show users', usernames);
 		socket.emit('prompt username');
 
-			// deal
-		socket.on('start game', function() {
+		// deal
+		socket.on('start game', function(napoleon, secretary_card, bid, trump) {
 			console.log('game started');
 
 			game = {
-								napoleon: null,
-								secretary_player: null,
-								secretary_card: null,
-								trump: null,
+								napoleon: napoleon,
+ 								secretary_player: null,
+								secretary_card: secretary_card,
+								trump: trump,
 								cards: [],
 								hands: {},
 								kitty: [],
 								whose_turn: null,
 								points: {},
-								bid: 0,
+								bid: bid,
 								current_round: []
-			 			 }
+			 			 };
 
 			for (var i = 0; i < usernames.length; i++) {
 				game.points[usernames[i]] = 0;
@@ -50,13 +65,15 @@ module.exports = function(io) {
 			  	game.kitty = Cards.deal(cards, usernames)[1];
 			  	
 			  	io.emit('first deal');
-			  	// console.log("kitty: " + JSON.stringify(game.kitty, undefined, 2));
+			  	console.log("kitty: " + JSON.stringify(game.kitty, undefined, 2));
 			  	console.log("hands: " + JSON.stringify(game.hands, undefined, 2));
 
 			  	db.close();
+
+			  	declare_secretary(game, usernames, secretary_card);
 				})
 
-				io.emit('chat message', "!", "Declare bid, secretary, napoleon, and trump. E.g. '\\declare napoleon: valerie'");
+				// io.emit('chat message', "!", "Declare bid, secretary, napoleon, and trump. E.g. '\\declare napoleon: valerie'");
 			})
 		})
 
@@ -75,8 +92,10 @@ module.exports = function(io) {
 			io.emit('show users', usernames);
 
 			if (usernames.length === 4) {
-				var init_msg = "Four players have joined. To start game, any player type '\\start game'.";
+				var init_msg = "Four players have joined. To start a game, any player can click on the 'start game' button.";
 				io.emit('chat message', "!", init_msg);
+
+				io.emit('allow start game');
 			}
 		})
 
@@ -84,35 +103,6 @@ module.exports = function(io) {
 		socket.on('ask for cards', function(username) {
 			var cards = Cards.sort_hand(game.hands[username]);
 			socket.emit('receive cards', cards);
-		})
-
-		// initialization of napoleon, secretary, trump
-		socket.on('declare napoleon', function(username) {
-			game.napoleon = username;
-			game.whose_turn = username;
-			console.log("napoleon: " + username);			
-		})
-		socket.on('declare secretary', function(card_value) {
-			game.secretary_card = _.findWhere(game.cards, { value: card_value });
-
-			// who holds the secretary card
-			for (var i=0; i < usernames.length; i++) {
-				if (_.findWhere(game.hands[usernames[i]], game.secretary_card)) {
-					game.secretary_player = usernames[i];
-					break;
-				}
-			}
-
-			console.log("secretary card: " + JSON.stringify(game.secretary_card));
-			console.log("secretary player: " + game.secretary_player);
-		})
-		socket.on('declare trump', function(trump) {
-			console.log("trump: " + trump);
-			game.trump = trump;
-		})
-		socket.on('declare bid', function(bid) {
-			console.log("bid: " + bid);
-			game.bid = Number(bid);
 		})
 
 		socket.on('play card', function(username, card_value) {

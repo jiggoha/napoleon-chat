@@ -56,3 +56,4 @@ TODO
   
   Napoleon:
   * Allow Napoleon to trade in with kitty
+  * Can't see card before declaring Napoleon, trump, etc

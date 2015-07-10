@@ -3,38 +3,86 @@
   <head>
     <title>Napoleon</title>
     <link rel="stylesheet" type="text/css" href="/style.css">
+
+    <!-- jquery for dialog -->
+    <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css" />
   </head>
 
   <body>
+    <!-- start game modal -->
+    <div id="dialog" title="Start a game of Napoleon">
+      <p class="validateTips">All form fields are required.</p>
+     
+      <form id="dialog_form">
+        <fieldset>
+          <label for="napoleon">Napoleon</label>
+          <input name="napoleon" id="napoleon" placeholder="Jiaao" class="text ui-widget-content ui-corner-all">
+          
+          <label for="secretary_card">Secretary card</label>
+          <input name="secretary_card" id="secretary_card" placeholder="S13" class="text ui-widget-content ui-corner-all">
+          
+          <label for="bid">Bid</label>
+          <input name="bid" id="bid" placeholder="13" class="text ui-widget-content ui-corner-all">
+
+          <label for="trump">Trump</label>
+          <input name="trump" id="trump" placeholder="hearts" class="text ui-widget-content ui-corner-all">
+     
+          <!-- Allow form submission with keyboard without duplicating the dialog button -->
+          <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+        </fieldset>
+      </form>
+    </div>
+
     <p id='cards_label'>Cards:</p>
     <ul id="messages"></ul>
-    <form action="">
+    <form id="messages_form" action="">
       <input id="m" autocomplete="off" /><button>Send</button>
     </form>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 
     <script>
       var socket = io(); // defaults to connecting to the URL of the 
+      var dialog = $("#dialog").dialog({
+              autoOpen: false,
+              height: 300,
+              width: 350,
+              modal: true,
 
-      $('form').submit(function() {
-        var command = $('#m').val();
-        var first_two = $('#m').val().split(" ").splice(0,2).join(" ");
-        var arg = $('#m').val().split(" ")[2];
+              buttons: {
+                "Start game": function() {
+                  var napoleon = $('#napoleon').val();
+                  var secretary_card = $('#secretary_card').val();
+                  var bid = $('#bid').val();
+                  var trump = $('#trump').val();
 
-        if ($('#m').val() == '\\start game') {
-          socket.emit('start game');
-        } else if (first_two == '\\declare napoleon') {
-          socket.emit('declare napoleon', arg);
-        } else if (first_two == '\\declare trump') {
-          socket.emit('declare trump', arg);
-        } else if (first_two == '\\declare secretary') {
-          socket.emit('declare secretary', arg);
-        } else if (first_two == '\\declare bid') {
-          socket.emit('declare bid', arg);
-        }
-        
+                  socket.emit('start game', napoleon, secretary_card, bid, trump);
+
+                  dialog.dialog( "close" );
+                },
+
+                Cancel: function() {
+                  dialog.dialog( "close" );
+                }
+              },
+
+              // open: function() {
+              //   $("#dialog-form").keypress(function(e) {
+              //     if (e.keyCode == $.ui.keyCode.ENTER) {
+              //       $(this).parent().find("button:eq(0)").trigger("click");
+              //     }
+              //   });
+              // },
+
+              close: function() {
+                form[0].reset();
+                allFields.removeClass( "ui-state-error" );
+              }
+            });
+
+      $('#messages_form').submit(function() {
         socket.emit('chat message', $('#m').val());
 
         $('#m').val('');
@@ -46,6 +94,11 @@
         if (($('#m').val() != '') && !($('#' + socket.username + '_is_typing').text())) {
           socket.emit('is typing', socket.username);
         }
+      });
+
+      socket.on('allow start game', function() {
+        $('<h2 id="deal_cards">Deal cards</h2>').insertBefore("#cards_label");
+        $('<h2 id="start_game">Start game</h2>').insertBefore("#cards_label");
       });
 
       socket.on('display typing', function(username) {
@@ -114,6 +167,15 @@
       socket.on('remove card', function(card_value) {
         $('#' + card_value).remove();
       });
+
+      // trigger opening of dialog
+      $('body').on('click', '#start_game', function() {
+        $('#dialog').dialog('open');
+      });
+
+      // $('body').on('click', '#deal_cards', function() {
+      //   socket.emit('ask for cards');
+      // });
 
       // trigger verification of whether you can play
       $('body').on('click', '.card', function() {
