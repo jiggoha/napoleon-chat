@@ -46,7 +46,10 @@ DONE
   * Who wins bug where Secretary card doesn't win fixed
   * Who wins bug: card is removed from hand so can't search for it
 
-  Started testing
+
+  Other:
+  * ~If everyone tries to click on 'start game', weird things will happen~
+  * Started testing helpers
 
 
 TODO
@@ -56,4 +59,4 @@ TODO
   
   Napoleon:
   * Allow Napoleon to trade in with kitty
-  * Can't see card before declaring Napoleon, trump, etc
+  * Write Node version of Capybara tests (Zombie.js?)

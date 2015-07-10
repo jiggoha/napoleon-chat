@@ -21,7 +21,19 @@ function declare_secretary(game, usernames, card_value) {
 module.exports = function(io) {
 	var recent_messages = [];
 	var usernames = [];
-	var game = {};
+	var game = {
+		napoleon: null,
+		secretary_player: null,
+		secretary_card: null,
+		trump: null,
+		cards: [],
+		hands: {}, // probably overwriting something right now
+		kitty: [],
+		whose_turn: null,
+		points: {},
+		bid: 0,
+		current_round: []
+	};
 
 	// events
 	io.on('connection', function(socket) {
@@ -34,48 +46,30 @@ module.exports = function(io) {
 		socket.on('start game', function(napoleon, secretary_card, bid, trump) {
 			console.log('game started');
 
-			game = {
-								napoleon: napoleon,
- 								secretary_player: null,
-								secretary_card: secretary_card,
-								trump: trump,
-								cards: [],
-								hands: {},
-								kitty: [],
-								whose_turn: null,
-								points: {},
-								bid: bid,
-								current_round: []
-			 			 };
+			game.napoleon = napoleon;
+			game.bid = bid;
+			game.trump = trump;
 
 			for (var i = 0; i < usernames.length; i++) {
 				game.points[usernames[i]] = 0;
 			}
-			MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
-				'use strict';
-				if (err) throw err;
 
-				// return all cards without _id field
-				db.collection('cards').find({}, { _id: false }).batchSize(52).toArray(function(err, cards) {
-					game.cards = cards;		    
+			declare_secretary(game, usernames, secretary_card);
 
-			    Cards.shuffle(cards);
+			io.emit('display game info', napoleon, secretary_card, bid, trump);
+		});
 
-			  	game.hands = Cards.deal(cards, usernames)[0];
-			  	game.kitty = Cards.deal(cards, usernames)[1];
-			  	
-			  	io.emit('first deal');
-			  	console.log("kitty: " + JSON.stringify(game.kitty, undefined, 2));
-			  	console.log("hands: " + JSON.stringify(game.hands, undefined, 2));
+		socket.on('tell everyone to ask for cards', function() {
+			io.emit('first deal');
+		});
 
-			  	db.close();
+		socket.on('tell everyone to remove deal button', function() {
+			io.emit('remove deal button');
+		});
 
-			  	declare_secretary(game, usernames, secretary_card);
-				})
-
-				// io.emit('chat message', "!", "Declare bid, secretary, napoleon, and trump. E.g. '\\declare napoleon: valerie'");
-			})
-		})
+		socket.on('tell everyone to remove start button', function() {
+			io.emit('remove start button');
+		});
 
 	  // associates a new socket with the username that the user inputted
 		socket.on('add username', function(username) {
@@ -101,9 +95,29 @@ module.exports = function(io) {
 
 		// deal cards
 		socket.on('ask for cards', function(username) {
-			var cards = Cards.sort_hand(game.hands[username]);
-			socket.emit('receive cards', cards);
-		})
+			MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
+				'use strict';
+				if (err) throw err;
+
+				// return all cards without _id field
+				db.collection('cards').find({}, { _id: false }).batchSize(52).toArray(function(err, cards) {
+					game.cards = cards;		    
+
+			    Cards.shuffle(cards);
+
+			  	game.hands = Cards.deal(cards, usernames)[0];
+			  	game.kitty = Cards.deal(cards, usernames)[1];
+			  	
+			  	console.log("kitty: " + JSON.stringify(game.kitty, undefined, 2));
+			  	console.log("hands: " + JSON.stringify(game.hands, undefined, 2));
+
+			  	db.close();
+
+			  	var cards = Cards.sort_hand(game.hands[username]);
+					socket.emit('receive cards', cards);
+				});
+			});
+		});
 
 		socket.on('play card', function(username, card_value) {
 			if (game.whose_turn == username) {

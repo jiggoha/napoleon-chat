@@ -168,14 +168,31 @@
         $('#' + card_value).remove();
       });
 
+      socket.on('remove deal button', function() {
+        $('#deal_cards').remove();
+      });
+
+      socket.on('display game info', function(napoleon, secretary_card, bid, trump) {
+        $('<p>Trump: ' + trump + '<p>').insertBefore('#user_list');
+        $('<p>Bid: ' + bid + '<p>').insertBefore('#user_list');
+        $('<p>Napoleon: ' + napoleon + '<p>').insertBefore('#user_list');
+        $('<p>Secretary card: ' + secretary_card + '<p>').insertBefore('#user_list');
+      });
+
+      socket.on('remove start button', function() {
+        $('#start_game').remove();
+      });
+
       // trigger opening of dialog
       $('body').on('click', '#start_game', function() {
+        socket.emit('tell everyone to remove start button');
         $('#dialog').dialog('open');
       });
 
-      // $('body').on('click', '#deal_cards', function() {
-      //   socket.emit('ask for cards');
-      // });
+      $('body').on('click', '#deal_cards', function() {
+        socket.emit('tell everyone to remove deal button');
+        socket.emit('tell everyone to ask for cards');
+      });
 
       // trigger verification of whether you can play
       $('body').on('click', '.card', function() {
