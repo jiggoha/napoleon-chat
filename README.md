@@ -48,7 +48,8 @@ DONE
 
 
   Other:
-  * ~If everyone tries to click on 'start game', weird things will happen~
+  * ~~If everyone tries to click on 'start game', weird things will happen~~
+  * ~~Card play bug: server doesn't know who won a trick~~
   * Started testing helpers
 
 
@@ -59,4 +60,7 @@ TODO
   
   Napoleon:
   * Allow Napoleon to trade in with kitty
+
+  Other:
   * Write Node version of Capybara tests (Zombie.js?)
+  * Pressing 'enter' at modal screen makes logs the user out and does not submit form (http://stackoverflow.com/questions/868889/submit-jquery-ui-dialog-on-enter)

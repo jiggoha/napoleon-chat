@@ -46,7 +46,7 @@ module.exports = function(io) {
 		socket.on('start game', function(napoleon, secretary_card, bid, trump) {
 			console.log('game started');
 
-			game.napoleon = napoleon;
+			game.napoleon = game.whose_turn = napoleon;
 			game.bid = bid;
 			game.trump = trump;
 
@@ -60,7 +60,27 @@ module.exports = function(io) {
 		});
 
 		socket.on('tell everyone to ask for cards', function() {
-			io.emit('first deal');
+			MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db) {
+				'use strict';
+				if (err) throw err;
+
+				// return all cards without _id field
+				db.collection('cards').find({}, { _id: false }).batchSize(52).toArray(function(err, cards) {
+					game.cards = cards;		    
+
+			    Cards.shuffle(cards);
+
+			  	game.hands = Cards.deal(cards, usernames)[0];
+			  	game.kitty = Cards.deal(cards, usernames)[1];
+			  	
+			  	console.log("kitty: " + JSON.stringify(game.kitty));
+			  	console.log("hands: " + JSON.stringify(game.hands, undefined, 2));
+
+			  	db.close();
+
+					io.emit('first deal');
+				});
+			});
 		});
 
 		socket.on('tell everyone to remove deal button', function() {
@@ -95,28 +115,8 @@ module.exports = function(io) {
 
 		// deal cards
 		socket.on('ask for cards', function(username) {
-			MongoClient.connect('mongodb://localhost:27017/napoleon', function(err, db){
-				'use strict';
-				if (err) throw err;
-
-				// return all cards without _id field
-				db.collection('cards').find({}, { _id: false }).batchSize(52).toArray(function(err, cards) {
-					game.cards = cards;		    
-
-			    Cards.shuffle(cards);
-
-			  	game.hands = Cards.deal(cards, usernames)[0];
-			  	game.kitty = Cards.deal(cards, usernames)[1];
-			  	
-			  	console.log("kitty: " + JSON.stringify(game.kitty, undefined, 2));
-			  	console.log("hands: " + JSON.stringify(game.hands, undefined, 2));
-
-			  	db.close();
-
-			  	var cards = Cards.sort_hand(game.hands[username]);
-					socket.emit('receive cards', cards);
-				});
-			});
+			var cards = Cards.sort_hand(game.hands[username]);
+			socket.emit('receive cards', cards);
 		});
 
 		socket.on('play card', function(username, card_value) {
@@ -140,7 +140,7 @@ module.exports = function(io) {
 					console.log("winning_card: " + JSON.stringify(winning_player_card));
 
 					// announce win
-					var win_msg = winning_player + " won with the " + winning_player_card.card_played.value;
+					var win_msg = winning_player + " won with the " + winning_player_card.card_played.name;
 					io.emit('chat message', "!", win_msg);
 
 					// track points
@@ -170,7 +170,7 @@ module.exports = function(io) {
 			} else {
 				socket.emit('not your turn', game.whose_turn);
 			}
-		})
+		});
 
 	  // a user sends a chat message to everyone
 		socket.on('chat message', function(msg) {

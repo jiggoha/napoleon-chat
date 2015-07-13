@@ -1,4 +1,4 @@
-var HISTORY_LENGTH = 10;
+const HISTORY_LENGTH = 10;
 
 // keeps recent_messages array to be a certain length
 module.exports.clip = function clip(array) {
